@@ -1,42 +1,162 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<title>Javascript Paillier demo page</title>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<style type="text/css">
-		div.result {
-			background-color: #cccccc;
-			word-wrap: break-word;
-		}
-		.cyphertext {
-			 word-wrap: break-word;
-		}
-	</style>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Javascript Paillier demo page</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <style type="text/css">
+      div.result {
+        background-color: #cccccc;
+        word-wrap: break-word;
+      }
+      .cyphertext {
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
     <script src="wasm_exec.js"></script>
-
     <script>
-			const go = new Go();
-			WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
-				go.run(result.instance);
-                const k  = generateKeys(64);
-				const a =2;
-				const b = 4;
-				const eas = encrypt(a);
-				const ebs = encrypt(b);
-				const eabs = add(eas, ebs);
-				const abs = decrypt(eabs);
-				console.log(abs);
-				const emas = mult(eas, 4);
-				const mas = decrypt(emas);
-				console.log(mas)
-			});
-
+      const go = new Go();
+      WebAssembly.instantiateStreaming(
+        fetch("main.wasm"),
+        go.importObject
+      ).then(result => {
+        window.document.getElementById("");
+        go.run(result.instance);
+        const k = generateKeys(2048);
+        const a = 2;
+        const b = 4;
+        const eas = encrypt(a);
+        const ebs = encrypt(b);
+        const eabs = add(eas, ebs);
+        const abs = decrypt(eabs);
+        console.log(abs);
+        const emas = mult(eas, 4);
+        const mas = decrypt(emas);
+        console.log(mas);
+      });
     </script>
-    <script>
-
-    </script>
-</body>
+    <main>
+      <div>
+        <h1>
+          <button type="button" class="btn btn-primary">generate keys</button>
+          <p class="generatedKeys" id="generatedKeys"></p>
+        </h1>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">user</th>
+            <th scope="col">Plasma Glucose Result (mg/dL)</th>
+            <th scope="col">encrypt</th>
+            <th scope="col">decrypt</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Georges Mussel</td>
+            <td>159</td>
+            <td>
+              <button type="button" class="btn btn-primary">encrypt</button>
+              <p class="encryptedData" id="encryptedData-0"></p>
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary">decrypt</button>
+              <p class="decryptedData" id="decryptedData-0"></p>
+            </td>
+          </tr>
+          <tr>
+            <td>Lucie Pinel</td>
+            <td>86</td>
+            <td>
+              <button type="button" class="btn btn-primary">encrypt</button>
+              <p class="encryptedData" id="encryptedData-0"></p>
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary">decrypt</button>
+              <p class="decryptedData" id="decryptedData-0"></p>
+            </td>
+          </tr>
+          <tr>
+            <td>Luc Jores</td>
+            <td>89</td>
+            <td>
+              <button type="button" class="btn btn-primary">encrypt</button>
+              <p class="encryptedData" id="encryptedData-0"></p>
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary">decrypt</button>
+              <p class="decryptedData" id="decryptedData-0"></p>
+            </td>
+          </tr>
+          <tr>
+            <td>Hugo Truong</td>
+            <td>110</td>
+            <td>
+              <button type="button" class="btn btn-primary">encrypt</button>
+              <p class="encryptedData" id="encryptedData-0"></p>
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary">decrypt</button>
+              <p class="decryptedData" id="decryptedData-0"></p>
+            </td>
+          </tr>
+          <tr>
+            <td>Jacquie Icks</td>
+            <td>129</td>
+            <td>
+              <button type="button" class="btn btn-primary">encrypt</button>
+              <p class="encryptedData" id="encryptedData-0"></p>
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary">decrypt</button>
+              <p class="decryptedData" id="decryptedData-0"></p>
+            </td>
+          </tr>
+          <tr>
+            <td>Michele Vernier</td>
+            <td>123</td>
+            <td>
+              <button type="button" class="btn btn-primary">encrypt</button>
+              <p class="encryptedData" id="encryptedData-0"></p>
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary">decrypt</button>
+              <p class="decryptedData" id="decryptedData-0"></p>
+            </td>
+          </tr>
+          <tr>
+            <td>Aristide Brinance</td>
+            <td>98</td>
+            <td>
+              <button type="button" class="btn btn-primary">encrypt</button>
+              <p class="encryptedData" id="encryptedData-0"></p>
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary">decrypt</button>
+              <p class="decryptedData" id="decryptedData-0"></p>
+            </td>
+          </tr>
+          <tr>
+            <td>Valery Ang</td>
+            <td>145</td>
+            <td>
+              <button type="button" class="btn btn-primary">encrypt</button>
+              <p class="encryptedData" id="encryptedData-0"></p>
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary">decrypt</button>
+              <p class="decryptedData" id="decryptedData-0"></p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </body>
 </html>
