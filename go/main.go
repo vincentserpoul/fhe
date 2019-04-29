@@ -1,80 +1,102 @@
 package main
 
 import (
-	"crypto/rand"
 	"fmt"
-	"math/big"
+	"syscall/js"
+	"encoding/hex"
 
 	paillier "github.com/Roasbeef/go-go-gadget-paillier"
 )
 
-// This example demonstrates basic usage of this library.
-// Features shown:
-//   * Encrypt/Decrypt
-//   * Homomorphic cipher text addition
-//   * Homomorphic addition with constant
-//   * Homomorphic multiplication with constant
+// Global
+var privKey *paillier.PrivateKey
+
+func generateKeysJS(bits int) map[string]interface{} {
+	k := make(map[string]interface{})
+	var err error
+	privKey, err = generateKeys(bits)
+	if err != nil {
+		fmt.Println(err)
+		return k
+	}
+
+	k["n"] = fmt.Sprintf("%x", privKey.PublicKey.N)
+	k["lambda"] = fmt.Sprintf("%x", privKey.PublicKey.G)
+
+	return k
+}
+
+func encryptJS(i int) string {
+	ei, err := encrypt(&privKey.PublicKey, i)
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+	return fmt.Sprintf("%x", ei)
+}
+
+
+func decryptJS(eis string) int {
+	ei, errDS := hex.DecodeString(eis)
+	if errDS != nil {
+		fmt.Println(errDS)
+		return 0
+	}
+	i, errD := decrypt(privKey, ei)
+	if errD != nil {
+		fmt.Println(errD)
+		return 0
+	}
+	return i
+}
+
+func addJS(eas, ebs string) string {
+	eab, errADS := hex.DecodeString(eas)
+	if errADS != nil {
+		fmt.Println(errADS)
+		return ""
+	}
+	ebb, errBDS := hex.DecodeString(ebs)
+	if errBDS != nil {
+		fmt.Println(errBDS)
+		return ""
+	}
+	return fmt.Sprintf("%x", add(&privKey.PublicKey, eab, ebb))
+}
+
+func multJS(eis string, b int) string {
+	ei, errDS := hex.DecodeString(eis)
+	if errDS != nil {
+		fmt.Println(errDS)
+		return ""
+	}
+	return fmt.Sprintf("%x", mult(&privKey.PublicKey, ei, b))
+}
+
+func registerCallbacks() {
+	js.Global().Set("generateKeys", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		return generateKeysJS(args[0].Int())
+	}))
+	js.Global().Set("encrypt", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		return encryptJS(args[0].Int())
+	}))
+	js.Global().Set("decrypt", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		return decryptJS(args[0].String())
+	}))
+	js.Global().Set("add", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		return addJS(args[0].String(), args[1].String())
+	}))
+	js.Global().Set("mult", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		return multJS(args[0].String(), args[1].Int())
+	}))
+}
+
 func main() {
-	// Generate a 128-bit private key.
-	privKey, err := paillier.GenerateKey(rand.Reader, 128)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+    c := make(chan struct{}, 0)
 
-	// Encrypt the number "15".
-	m15 := new(big.Int).SetInt64(15)
-	c15, err := paillier.Encrypt(&privKey.PublicKey, m15.Bytes())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// register functions
+	registerCallbacks()
+    println("WASM Go Initialized")
 
-	// Decrypt the number "15".
-	d, err := paillier.Decrypt(privKey, c15)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	plainText := new(big.Int).SetBytes(d)
-	fmt.Println("Decryption Result of 15: ", plainText.String())
-
-	// Now for the fun stuff.
-	// Encrypt the number "20".
-	m20 := new(big.Int).SetInt64(20)
-	c20, err := paillier.Encrypt(&privKey.PublicKey, m20.Bytes())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	// Add the encrypted integers 15 and 20 together.
-	plusM16M20 := paillier.AddCipher(&privKey.PublicKey, c15, c20)
-	decryptedAddition, err := paillier.Decrypt(privKey, plusM16M20)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println("Result of 15+20 after decryption: ",
-		new(big.Int).SetBytes(decryptedAddition).String()) // 35
-
-	// Add the encrypted integer 15 to plaintext constant 10.
-	plusE15and10 := paillier.Add(&privKey.PublicKey, c15, new(big.Int).SetInt64(10).Bytes())
-	decryptedAddition, err = paillier.Decrypt(privKey, plusE15and10)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println("Result of 15+10 after decryption: ",
-		new(big.Int).SetBytes(decryptedAddition).String()) // 25
-
-	// Multiply the encrypted integer 15 by the plaintext constant 10.
-	mulE15and10 := paillier.Mul(&privKey.PublicKey, c15, new(big.Int).SetInt64(10).Bytes())
-	decryptedMul, err := paillier.Decrypt(privKey, mulE15and10)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println("Result of 15*10 after decryption: ",
-		new(big.Int).SetBytes(decryptedMul).String()) // 150
+    <-c
 }

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Javascript Paillier demo page</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<style type="text/css">
+		div.result {
+			background-color: #cccccc;
+			word-wrap: break-word;
+		}
+		.cyphertext {
+			 word-wrap: break-word;
+		}
+	</style>
+</head>
+<body>
+    <script src="wasm_exec.js"></script>
+
+    <script>
+			const go = new Go();
+			WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
+				go.run(result.instance);
+                const k  = generateKeys(64);
+				const a =2;
+				const b = 4;
+				const eas = encrypt(a);
+				const ebs = encrypt(b);
+				const eabs = add(eas, ebs);
+				const abs = decrypt(eabs);
+				console.log(abs);
+				const emas = mult(eas, 4);
+				const mas = decrypt(emas);
+				console.log(mas)
+			});
+
+    </script>
+    <script>
+
+    </script>
+</body>
+</html>
